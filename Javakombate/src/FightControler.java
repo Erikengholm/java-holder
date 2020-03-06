@@ -22,14 +22,13 @@ import javazoom.jl.decoder.JavaLayerException;
 
 
 public class FightControler {
-    public ArrayList < Music > ost = new ArrayList < Music > ();
+    public ArrayList <Music> ost = new ArrayList < Music > ();
     public GridBagConstraints gbc = new GridBagConstraints();
     public JFrame frame = new JFrame();
     private Fightdata Back;
     private FightView front;
-    public int first;//fghjk
+    public int first;
     public int second;
-    public int phase = 0;
     private ArrayList < Combaten > tour = new ArrayList < Combaten > ();
 
     public FightControler(ArrayList < Combaten > list) {
@@ -51,11 +50,8 @@ public class FightControler {
         //off finns här så att det alltid blir två olika fighters som strider mot varandra och se till att det inte blir någon upprepning
         boolean off = false;
         //jag skickar en array för att både kolla om listan kan delas med upphöjt med två och kolla hur många gånger tourneringen ska upprepas
-        sizaeCheck(tour, turns);
-        if (turns[1] == 1)
-            System.out.println("the combatens list must be dividable with two this one is not\nno fight ");
-        else {
             while (turns[0] > c) {
+            	ost.get(0).moode=choosebattlemusic(turns[0],c);
                 for (int counter = 0; counter < tour.size(); counter++) {
                     if (tour.get(counter).isStatus() && tour.get(remember).isStatus() && off) {
                     	//sätter in placeringen av både stridarna i en int värde för att lättare komma ihåg 
@@ -85,9 +81,18 @@ public class FightControler {
             System.exit(0);
         }
 
-    }
+    
  
-    private void songStop() throws JavaLayerException {
+    private int choosebattlemusic(int turns, int c) {
+    	int music=1;
+    	if(turns==c)
+    		music=3;
+    	else if ((turns-1)==c)
+    		music=2;
+    	
+		return music;
+	}
+	private void songStop() throws JavaLayerException {
         ost.get(0).stopsong();
         ost.remove(0);
         Music t2 = new Music();
@@ -96,16 +101,16 @@ public class FightControler {
     
     private void startFight() throws IOException, InterruptedException {
         int turn = 0;
-        if (tour.get(first)
-            .getplayer()) {
-            updateFram();
-            ost.get(0).start();
+        if (tour.get(first).getplayer()) {
+            front.AIcharecter();
+        	Displayfight();
+        	ost.get(0).start();
             //pausa threaden tills spelare skriver något
             Back.waiting();
-        } else if (tour.get(second)
-            .getplayer()) {
+        } else if (tour.get(second).getplayer()) {
             switchingplace();
-            updateFram();
+            front.AIcharecter();
+            Displayfight();
             ost.get(0).start();
             //pausa threaden tills spelare skriver något
             Back.waiting();
@@ -113,7 +118,6 @@ public class FightControler {
             while (tour.get(first)
                 .isStatus() && tour.get(second)
                 .isStatus() && turn <= 100) {
-                System.out.println("\t\t Turn " + turn);
                 Back.contact = false;
                 Back.chooseMove(tour.get(first));
                 Back.chooseMove(tour.get(second));
@@ -129,7 +133,7 @@ public class FightControler {
 
     }
 
-    private void switchingplace() {
+    protected void switchingplace() {
         int temp;
         temp = first;
         first = second;
@@ -145,6 +149,8 @@ public class FightControler {
     }
 
     private void Displayfight() throws IOException {
+    	updateFram();
+    	front.setFighterOne(tour.get(first).Character);
         gbc.weightx = 1;
         gbc.weighty = 1;
         gbc.fill = GridBagConstraints.NONE;
@@ -186,7 +192,7 @@ public class FightControler {
         opponenetstats.setFont(statsmeny.getFont().deriveFont(20.0f));
         matchinfo.setFont(matchinfo.getFont().deriveFont(15.0f));
         turninfo.setFont(turninfo.getFont().deriveFont(15.0f));
-        
+
         gbc.ipady = 0;
         gbc.gridwidth = 3;
         gbc.gridx = 6;
@@ -240,9 +246,9 @@ public class FightControler {
                 }
                 try {
                 	moveHit();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
                 } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                } catch (Exception e1) {
                     e1.printStackTrace();
                 }
             }
@@ -263,53 +269,113 @@ public class FightControler {
         Back.checkLife(tour.get(first), tour.get(second));
         Back.at = front.result(Back.res, tour.get(first), tour.get(second), currentlife2);
         Back.contact = false;
-        phase = 0;
-        if (!tour.get(first)
-            .isStatus()) {
-            phase = 1;
-        } else if (!tour.get(second)
-            .isStatus()) {
-            phase = 2;
+        if (!tour.get(first).isStatus()) {
+            victoryScreen(tour.get(second), tour.get(first));
+        } else if (!tour.get(second).isStatus()) {
+            victoryScreen(tour.get(first), tour.get(second));
         }
-
-        updateFram();
+        else {
+        Displayfight();
+        }
     }
-    private void updateFram() throws IOException, InterruptedException {
+    private void updateFram() {
     	//används för att berätta att ta bort allt från jframe och sen att du ska lägga till någotnytt i jframe
         frame.getContentPane()
             .removeAll();
         frame.getContentPane()
             .repaint();
-        switch (phase) {
-        case 0: 
-        	Displayfight();
-        	break;
-        case 1:
-            victoryScreen(tour.get(second), tour.get(first));
-            break;
-        case 2:
-            victoryScreen(tour.get(first), tour.get(second));
-        	break;
-        }
     }
-    
-    private void sizaeCheck(ArrayList < Combaten > list, int[] turns) {
-        int n = list.size();
-        while (n % 2 == 0) {
-            n /= 2;
-            turns[0] = turns[0] + 1;
-        }
+    public void characterSelect(Combaten c) {
+    	updateFram();
+    	ost.get(0).moode=4;
+    	ost.get(0).start();
+        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+        gbc.weighty=1;
+        gbc.weightx=1; 
+        gbc.ipady = 0;
+        gbc.fill = GridBagConstraints.NONE;
 
-        if (n == 0 || n != 1)
-            turns[1] = 1;
-        else
-            turns[1] = 0;
+       
+        
+        JLabel char1 = new JLabel(new ImageIcon("images/Alfyn/read.png"));
+        JLabel char2 = new JLabel(new ImageIcon("images/Ophilia/read.png"));
+        JLabel char3 = new JLabel(new ImageIcon("images/Cyrus/read.png"));
+        JButton startMatch = new JButton("start match");
+        
+        JRadioButton one = new JRadioButton();
+
+        JRadioButton two = new JRadioButton();
+
+        JRadioButton three = new JRadioButton();
+
+       
+        //Groupera knapparna så att bara en kan bli tryckt i taget
+        ButtonGroup movemeny = new ButtonGroup();
+        movemeny.add(one);
+        movemeny.add(two);
+        movemeny.add(three);
+        gbc.gridwidth = 1;
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        
+        frame.add(char1, gbc);
+        gbc.gridy = 2;
+        frame.add(one, gbc);
+        
+        gbc.gridy = 1;
+        gbc.gridx = 2;
+        
+        frame.add(char2, gbc);
+        gbc.gridy = 2;
+
+        frame.add(two, gbc);
+        gbc.gridx = 3;
+        gbc.gridy = 1;
+       
+        frame.add(char3, gbc);
+        gbc.gridy = 2;
+        frame.add(three, gbc);
+        gbc.gridx=1;
+        gbc.gridy=5;
+        gbc.gridwidth = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        frame.add(startMatch, gbc);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        startMatch.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+            	if (one.isSelected()) {
+            		c.Character="images/Alfyn";
+            	}
+            	else if (two.isSelected()) {
+                    c.Character="images/Ophilia";
+                }
+            	else if (three.isSelected()) {
+                    c.Character="images/Cyrus";
+                    }
+            try {
+				songStop();
+			} catch (JavaLayerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+            frame.dispose();
+
+            }
+        });
+
     }
-    
     private void victoryScreen(Combaten victor, Combaten loser) throws IOException {
-        String victorymessage = " \t \t \t " + front.matchname + " Avslutad segrar är " + victor.getName() + " kom tillbaka till nästa match i " + front.getTournementName();
-        BufferedImage victoryscreen = front.combaineImges(front.getImg(front.getBackground()), front.getImg(front.setFighterState(tour.get(second).getMove(),front.getFighterTwo())),
-        		front.getImg(front.setFighterState(tour.get(first).getMove(),front.getFighterOne())));
+    	updateFram();
+    	BufferedImage victoryscreen;
+    	String victorymessage = " \t \t \t " + front.matchname + " Avslutad segrar är " + victor.getName() + " kom tillbaka till nästa match i " + front.getTournementName();
+        if(tour.get(first).isStatus()) {
+        	victoryscreen = front.combaineImges(front.getImg(front.getBackground()), front.getImg("images/lose.png"),
+        	front.getImg(front.setFighterState(tour.get(first).getMove(),front.getFighterOne())));}
+        else {
+        	victoryscreen = front.combaineImges(front.getImg(front.getBackground()), front.getImg(front.setFighterState(tour.get(second).getMove(),front.getFighterTwo())),
+        	front.getImg("images/lose.png"));}
         JLabel scene = new JLabel(new ImageIcon(victoryscreen));
         JButton endmatch = new JButton("next");
         victorymessage = victorymessage.replaceAll("\t", "           ");
@@ -331,8 +397,6 @@ public class FightControler {
         endmatch.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                phase = 0;
-                System.out.println("tryck enter för att starta nästa match");
                 try {
                     songStop();
                 } catch (JavaLayerException e1) {

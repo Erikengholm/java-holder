@@ -15,7 +15,7 @@ public class Combaten {
     private int diffuculty = 1;
     //attack är postion 0 ,defense är postion nummer 1 och special är postion nummer 2
     private int[] stats = new int[3];
-
+    public String Character = " ";
     public int[] getstatsarray() {
         return stats;
     }

@@ -4,16 +4,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public abstract class create {
     private static String database = "jdbc:mysql://localhost:3306/javacombo" + "?serverTimezone=UTC";
     private static String user = "Student";
     private static String pass = "";
-
+    private static ArrayList < String > namns = new ArrayList < String > ();
+    
     static void createCombaten(ArrayList < Combaten > list) {
 
         Scanner scan = new Scanner(System.in);
+        if(!list.isEmpty())
+        	list.remove(list.size()-1);
+        
         while (true) {
             Combaten c = new Combaten();
             System.out.println("skriv in önskad namn");
@@ -30,15 +35,15 @@ public abstract class create {
 
 
     }
-    @SuppressWarnings("resource")
+
     static void chooseplayer(ArrayList < Combaten > list) throws SQLException {
-        ArrayList < String > namns = new ArrayList < String > ();
-        databaseNameList(namns);
+        NameList(list);
         int i = 0;
         for (String namn: namns)
             System.out.println(namn);
         System.out.println("vem vill du vara av dessa karaktärer");
-        Scanner scan = new Scanner(System.in);
+        @SuppressWarnings("resource")
+		Scanner scan = new Scanner(System.in);
         String choosenone = scan.next();
         for (Combaten c: list) {
             if (c.getName()
@@ -49,41 +54,55 @@ public abstract class create {
         }
         System.out.println("det finns just nu " + i + " spelare");
     }
-    static void getSqlCombatenList(ArrayList < Combaten > list) throws SQLException {
-        Connection mycon = null;
-        PreparedStatement myStm = null;
-
-        mycon = DriverManager.getConnection(database, user, pass);
-        myStm = mycon.prepareStatement("select * from fighter");
+    static void getSqlCombatenList(ArrayList < Combaten > list, int size) throws SQLException {
+    	namns.add(" ");
+        if(!list.isEmpty()) {
+        	NameList(list);
+        }
+        boolean noreapet=true;
+        PreparedStatement myStm = getmysqlconnection().prepareStatement("select * from fighter");
         ResultSet myres = myStm.executeQuery();
         while (myres.next()) {
-            System.out.println("Namn : " + myres.getString("Nickname") + " \nAttack : " + myres.getString("Attack") + "\nDefense : " + myres.getInt("Defense") + "\ncharge : " + myres.getInt("Special"));
-            System.out.println("-----------------------------------\n");
             Combaten c = new Combaten();
             c.setstats(myres.getInt("Attack"), myres.getInt("Defense"), myres.getInt("Special"));
             c.setName(myres.getString("Nickname"));
             c.setKön(myres.getBoolean("gender"));
-            list.add(c);
+            for(String namn : namns) {
+            	if(myres.getString("Nickname").equalsIgnoreCase(namn))
+            		noreapet=false;
+            	}
+            if(noreapet) {
+            	list.add(c);
+            	}
+            else
+            	noreapet=true;
+
+        }        
+        	int erase=1;
+            Collections.shuffle(list);
+            while(size!=list.size() && size>2 && size<list.size()) {
+            	if(list.get(list.size()-1).getplayer())
+            		erase=2;
+            	
+                list.remove( list.size() - erase );
+                
+            }
         }
 
-    }
-
+    
+    
+    
     static void insertCombatenListTosql(ArrayList < Combaten > list) throws SQLException {
 
-        Connection mycon = null;
-        PreparedStatement myStm = null;
-
-        mycon = DriverManager.getConnection(database, user, pass);
         System.out.println("ansluten till databasen\r");
 
-        ArrayList < String > namns = new ArrayList < String > ();
-        databaseNameList(namns);
+        databaseNameList();
 
         boolean b;
         for (Combaten
             var: list) {
-            b = false;
-            myStm = mycon.prepareStatement("insert into Fighter (Nickname, Attack,Defense,Special,Gender)" +
+            b = false;                 
+            PreparedStatement myStm = getmysqlconnection().prepareStatement("insert into Fighter (Nickname, Attack,Defense,Special,Gender)" +
                 "values ( ?,?,?,?,?)");
 
             //jag sätter strängerna där ? är detta är en inbygdd method i java
@@ -111,19 +130,31 @@ public abstract class create {
             }
 
         }
-        mycon.close();
+        getmysqlconnection().close();
     }
-
-    static void databaseNameList(ArrayList < String > namns) throws SQLException {
-        Connection mycon = null;
-        PreparedStatement myStm = null;
-
-        mycon = DriverManager.getConnection(database, user, pass);
-        myStm = mycon.prepareStatement("select * from fighter");
+    public static Connection getmysqlconnection() {
+    	Connection mycon = null;
+        try {
+			mycon = DriverManager.getConnection(database, user, pass);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return mycon;
+    }
+    static void NameList(ArrayList<Combaten> list) throws SQLException {
+    	namns.clear();
+        for(int c=0;c<list.size();c++) {
+        	namns.add(list.get(c).getName());
+        } 
+    }
+    static void databaseNameList() throws SQLException {
+    	namns.clear();
+    	PreparedStatement myStm = getmysqlconnection().prepareStatement("select * from fighter");
         ResultSet myres = myStm.executeQuery();
         while (myres.next()) {
             namns.add(myres.getString("Nickname"));
         }
-        mycon.close();
+        getmysqlconnection().close();
     }
 }

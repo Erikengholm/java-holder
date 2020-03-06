@@ -1,6 +1,7 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -27,12 +28,10 @@ class test {
     	assertTrue(b);
  
 	}
-	@SuppressWarnings("static-access")
 	@Test
 	void testlistinsert() throws SQLException {
 		ArrayList<Combaten> list = new ArrayList<Combaten>();
-		JavaKombat jk = new JavaKombat();
-		jk.getSqlCombatenList(list);
+		create.getSqlCombatenList(list, 0);
 		assertFalse(list.isEmpty());
 	}
 
@@ -43,7 +42,52 @@ class test {
 		FW.setMatch(r, m);
 		r++;
 		FW.setMatch(r, m);
-		assertEquals("runda 2 Match number 1",FW.matchname);
+		assertEquals("runda 3 Match number 1",FW.matchname);
+	}
+	@Test
+	void testpersonswitch() {
+		ArrayList<Combaten> c = new ArrayList<Combaten>();
+		FightControler FC = new FightControler(c);
+		FC.first=1;
+		FC.second=10;
+		FC.switchingplace();
+		assertEquals(10,FC.first);
+	}
+	@Test
+	void testListsize() {
+		int c=2;
+		assertTrue(JavaKombat.sizaeCheck(c));
+		c=4;
+		assertTrue(JavaKombat.sizaeCheck(c));
+		c=5;
+		assertFalse(JavaKombat.sizaeCheck(c));
+	}
+	
+	@Test
+	void holder() {
+	//används för skapa nya test	
+	}
+	
+	@Test
+	void testoutputsizenotzero() {
+		int counter=0,i=0;
+		 Random r = new Random();
+		 boolean b=true;
+		 ArrayList <Combaten> c= new ArrayList<>();
+	     try {
+	    	 while(i!=100) {
+	    	counter=r.nextInt(120);
+			create.getSqlCombatenList(c,counter);
+			if(c.isEmpty())
+				b=false;
+			i++;
+			
+	    	}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	     assertTrue(b);
+		 
 	}
 	@Test
 	void testgetback() {
@@ -69,6 +113,28 @@ class test {
 			i++;
 		}
 		assertTrue(b);
+	}
+	@Test
+	void testconnection() {
+		Connection mycon = null;
+		mycon=JavaKombat.getmysqlconnection();
+		assertNotNull(mycon);
+	}
+	@Test
+	void testsingleton() {
+		FightView FW= FightView.getInstance();
+		FW.setFighterTwo("hej");
+		FightView F= FightView.getInstance();
+		assertEquals("hej",F.getFighterTwo());
+		Fightdata FD= Fightdata.getInstance();
+		FD.ult="hej";
+		Fightdata Fd= Fightdata.getInstance();
+		assertEquals("hej",Fd.ult);
+	}
+	@Test
+	void player() {
+		Music t1 = new Music();
+		assertTrue(t1.isAlive());
 	}
 	@Test
 	void testlife() {

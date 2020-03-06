@@ -26,7 +26,24 @@ public class FightView {
         return ViewIN;
     }
 
-    public void characterSelect() {}
+    public void AIcharecter() {
+    	String chare="images/Ophilia";
+    	Random r= new Random();
+    	;
+    	switch(r.nextInt(2)) {
+    	case 0:
+    		chare="images/Ophilia";
+    		break;
+    	case 1:
+    		chare="images/Cyrus";
+    		break;
+    	case 2:
+    		chare="images/Alfyn";
+    		break;
+    	}
+    	
+    	setFighterTwo(chare);
+    	}
     public String result(int res, Combaten one, Combaten two, int currentlife) {
         String result = " ";
 

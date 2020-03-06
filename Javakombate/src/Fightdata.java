@@ -4,7 +4,6 @@ import java.util.Scanner;
 public class Fightdata {
  private static Fightdata FightIN = null;
  private static Scanner scan = new Scanner(System.in);
- public String s;
  public boolean contact = false;
  public int res;//res-ultat är för att skicka in på fightview vilken text som ska skrivas ut
  public String ult = " ";
@@ -46,37 +45,15 @@ public class Fightdata {
     }
    } while (b);
   } else {
-   AI(c);
+	  aiChoosemove(c);
   }
 
 
  }
 
- private void AI(Combaten c) {
-  switch (c.getDiffuculty()) {
-   case 1:
-    easy(c);
-    break;
-   case 2:
-    normal(c);
-    break;
-   case 3:
-    hard(c);
-    break;
-  }
-
-
-
- }
- private void hard(Combaten c) {
-
- }
-
- private void normal(Combaten c) {
-
- }
-
- private void easy(Combaten c) {
+ 
+ 
+ private void aiChoosemove(Combaten c) {
   Random rand = new Random();
   int chanse;
   double move1 = (double) c.getAttack() / 150;
@@ -143,7 +120,8 @@ public class Fightdata {
     break;
   }
  }
-public void waiting(){
+public void waiting(){  
+	System.out.println("tryck enter för att forsätta");
     @SuppressWarnings("unused")
 	String i=scan.nextLine();
 }
@@ -162,21 +140,18 @@ public void waiting(){
    if (user.getAttack() + user.getCharge() <= victim.getDefense() + victim.getCharge()) {
     victim.setLife(victim.getLife() + 20);
    } else {
-    victim.setLife(victim.getLife() + (victim.getDefense() + victim.getCharge() - (user.getAttack() + user.getCharge())));
+    
    }
   } else {
    victim.setLife(victim.getLife() - (user.getAttack() + user.getCharge()));
-   user.setCharge(0);
   }
-
+  user.setCharge(0);
  }
 
 
  public void checkLife(Combaten first, Combaten second) {
-  if (first.getLife() <= 0 && second.getLife() <= 0) {
-   first.setLife(1);
-   second.setLife(1);
-  } else if (first.getLife() <= 0)
+  
+   if (first.getLife() <= 0)
    first.setStatus(false);
 
   else if (second.getLife() <= 0)

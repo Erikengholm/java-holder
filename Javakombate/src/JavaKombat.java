@@ -4,45 +4,69 @@ import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 class Music extends Thread{
+public int moode=1;
 private Player p;
 public void run(){
 	try {
-		FileInputStream fis = new FileInputStream("octo.mp3");
+		FileInputStream fis = situation();
+		
 		p = new Player(fis);
 		while(true) {
 		p.play();}
 	}catch (Exception e) {
 		} 
 		  }
+private FileInputStream situation() throws FileNotFoundException {
+	switch(moode) {
+		case 1:
+				return new FileInputStream("Music/octo.mp3");
+		case 2:
+				return new FileInputStream("Music/bravely.mp3");
+		case 3:
+				return new FileInputStream("Music/Final.mp3");
+		case 4:
+				return new FileInputStream("Music/assassin.mp3");
+		default:
+				return new FileInputStream("Music/victory.mp3");
+		}
+}
+
+public void setmoode(int i) {
+	moode=i;
+}
 
 public void stopsong() throws JavaLayerException {
 	p.close();
 }
 }
 public class JavaKombat extends create  {
+	private static Scanner scan = new Scanner(System.in);
+
 	public static void main( String[] args ) throws SQLException, IOException, JavaLayerException, InterruptedException {
 		boolean loki=true;
-		ArrayList<Combaten> list = new ArrayList<Combaten>();	
-		Scanner scan = new Scanner(System.in);
+		ArrayList<Combaten> list = new ArrayList<Combaten>();
 		while(loki) {
-
+			
 		System.out.println("vad vill du göra "
-				+ "\n1 = skapa en karaktär "
-				+ "\n2 = hämta alla karaktärena från data listan"
-				+ "\n3 = lägg till alla nya karaktärer i listan till databasen"	
-				+ "\n4 = starta en fight"
-				+ "\n5 = välj karaktär");
+				+ "\n\n1 = skapa en karaktär "
+				+ "\n\n2 = hämta alla karaktärena\n från data listan"
+				+ "\n\n3 = lägg till alla nya karaktärer\n i listan till databasen"	
+				+ "\n\n4 = starta en fight"
+				+ "\n\n5 = välj karaktär"
+				+ "\n\n6 = töm listan"
+				+ "\n\n7 = avsluta spelet");
 		switch(scan.nextInt()) {
 			case 1:
 				createCombaten(list);
 				break;
-			case 2:		
-				getSqlCombatenList(list);
+			case 2:
+				option(list);
 				break;	
 			case 3:
 				insertCombatenListTosql(list);
@@ -53,6 +77,10 @@ public class JavaKombat extends create  {
 			case 5:
 				chooseplayer(list);
 				break;
+			case 6:
+				list.clear();
+				System.out.println("Listan har nu blivit tömd");
+				break;
 			default:
 				loki=false;	
 				scan.close();
@@ -61,9 +89,47 @@ public class JavaKombat extends create  {
 	}
 
 	private static void startfight(ArrayList<Combaten> list) {
-		
+		int postion= -1;
 		FightControler FC= new FightControler(list);
+		postion=checkplayer(list);
+		if(postion!=-1) {
+			FC.characterSelect(list.get(postion));
+			FC.getBack().waiting();
+		}
 		FC.chooseFighter();
+	}			
+
+	private static int checkplayer(ArrayList<Combaten> list) {
+		int postion=-1;
+		for(int c=0;c<list.size();c++) {
+			if(list.get(c).getplayer()) {
+				postion=c;
+				System.out.println("spelare hittad");
+			}
+				
+		}
+		return postion;
+		
 	}
 
+	private static void option(ArrayList<Combaten> list) throws SQLException {
+		int size=0;
+		System.out.println("skriv in önskad nummer av stridare i konsolen \nMåste vara delbart med två");
+		size=scan.nextInt();
+		if(sizaeCheck(size)) 
+			getSqlCombatenList(list,size-list.size());
+		else
+			System.out.println("numret du skrev in är inte delbart med två skriv gärna in ett nytt nummer");
+} 
+	protected static boolean sizaeCheck(int size) {
+	        int n = size;
+	        while (n % 2 == 0) {
+	            n /= 2;
+	        }
+
+	        if (n == 0 || n != 1)
+	        	return false;
+	        else
+	        	return true;
+	    }
 }
