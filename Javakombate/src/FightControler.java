@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -14,9 +16,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
-/*för att se till att jframe inte fryser 
- * måste du skriva om koden och lägga 
- * allting jframe i controller klassen*/
 
 import javazoom.jl.decoder.JavaLayerException;
 
@@ -39,6 +38,14 @@ public class FightControler {
         ost.add(t1);
         frame.setLayout(new GridBagLayout());
     }
+    public void fixPlayerCharecter() {
+		int postion= -1;
+		postion=Back.checkplayer(tour);
+		if(postion!=-1) {
+			characterSelect(tour.get(postion));
+			Back.waiting();
+		}
+	}		
     public void chooseFighter() {
         int remember = 0;
         int match = 1;
@@ -46,6 +53,8 @@ public class FightControler {
         turns[0] = 1;
         turns[1] = 0;
         int c = 0;   
+        checkPlayer();
+        fixPlayerCharecter();
         front.createTournementName();
         //off finns här så att det alltid blir två olika fighters som strider mot varandra och se till att det inte blir någon upprepning
         boolean off = false;
@@ -58,14 +67,9 @@ public class FightControler {
                     	second = counter;
                         first = remember;
                         tour.get(first).setLife(100);
-                        tour.get(second).setLife(100);
-                        
-                        try {
-                            front.setMatch(c, match);
-                            startFight();
-                        } catch (IOException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        tour.get(second).setLife(100);      
+                        front.setMatch(c, match);
+						startFight();
                         off = false;
                         match++;
 
@@ -92,14 +96,18 @@ public class FightControler {
     	
 		return music;
 	}
-	private void songStop() throws JavaLayerException {
-        ost.get(0).stopsong();
+	private void songStop(){
+        try {
+			ost.get(0).stopsong();
+		} catch (JavaLayerException e) {
+			e.printStackTrace();
+		}
         ost.remove(0);
         Music t2 = new Music();
         ost.add(t2);
     }
     
-    private void startFight() throws IOException, InterruptedException {
+    private void startFight(){
         int turn = 0;
         if (tour.get(first).getplayer()) {
             front.AIcharecter();
@@ -148,7 +156,7 @@ public class FightControler {
         return Back;
     }
 
-    private void Displayfight() throws IOException {
+    private void Displayfight() {
     	updateFram();
     	front.setFighterOne(tour.get(first).Character);
         gbc.weightx = 1;
@@ -183,7 +191,13 @@ public class FightControler {
 
         JLabel turninfo = new JLabel("<Html>" + Back.ult + "<br>" + Back.at + "</html>");
         JLabel meny = new JLabel("vilket move vill du använda");
-        BufferedImage sceneimg = front.combaineImges(front.getImg(front.getBackground()), front.getImg(front.setFighterState(tour.get(second).getMove(),front.getFighterTwo())), front.getImg(front.setFighterState(tour.get(first).getMove(),front.getFighterOne())));
+        BufferedImage sceneimg = null;
+		try {
+			sceneimg = front.combaineImges(front.getImg(front.getBackground()), front.getImg(front.setFighterState(tour.get(second).getMove(),front.getFighterTwo())), front.getImg(front.setFighterState(tour.get(first).getMove(),front.getFighterOne())));
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+	
         JLabel matchinfo = new JLabel("<HTML>"+front.matchname+"<br>"+tour.get(first).getName()+" vs "+tour.get(second).getName()+"</HTML>");
         JLabel scene = new JLabel(new ImageIcon(sceneimg));
         statsmeny.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -244,17 +258,15 @@ public class FightControler {
                     tour.get(first)
                         .setMove(moves.Read);
                 }
-                try {
+                try{
                 	moveHit();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
             }
         });
     }
-    private void moveHit() throws IOException, InterruptedException {
+    private void moveHit(){
         int currentlife1, currentlife2;
         currentlife1 = tour.get(first)
             .getLife();
@@ -354,28 +366,28 @@ public class FightControler {
             	else if (three.isSelected()) {
                     c.Character="images/Cyrus";
                     }
-            try {
-				songStop();
-			} catch (JavaLayerException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+            songStop();
             frame.dispose();
 
             }
         });
 
     }
-    private void victoryScreen(Combaten victor, Combaten loser) throws IOException {
+    private void victoryScreen(Combaten victor, Combaten loser){
     	updateFram();
-    	BufferedImage victoryscreen;
+    	BufferedImage victoryscreen = null;
     	String victorymessage = " \t \t \t " + front.matchname + " Avslutad segrar är " + victor.getName() + " kom tillbaka till nästa match i " + front.getTournementName();
-        if(tour.get(first).isStatus()) {
-        	victoryscreen = front.combaineImges(front.getImg(front.getBackground()), front.getImg("images/lose.png"),
-        	front.getImg(front.setFighterState(tour.get(first).getMove(),front.getFighterOne())));}
+        	try {
+        		if(tour.get(first).isStatus()) {
+				victoryscreen = front.combaineImges(front.getImg(front.getBackground()), front.getImg("images/lose.png"),
+				front.getImg(front.setFighterState(tour.get(first).getMove(),front.getFighterOne())));
+			}
         else {
         	victoryscreen = front.combaineImges(front.getImg(front.getBackground()), front.getImg(front.setFighterState(tour.get(second).getMove(),front.getFighterTwo())),
         	front.getImg("images/lose.png"));}
+        	} catch (IOException e1) {
+				e1.printStackTrace();
+			}
         JLabel scene = new JLabel(new ImageIcon(victoryscreen));
         JButton endmatch = new JButton("next");
         victorymessage = victorymessage.replaceAll("\t", "           ");
@@ -399,12 +411,49 @@ public class FightControler {
             public void actionPerformed(ActionEvent e) {
                 try {
                     songStop();
-                } catch (JavaLayerException e1) {
-                    e1.printStackTrace();
                 } finally {
                     frame.dispose();
                 }
             }
         });
     }
+    protected void checkPlayer() {
+    	int amountOfPlayer;
+    	while(true) {
+    	amountOfPlayer=0;
+    	for(int c=0;c!=tour.size();c++) {
+    		if(tour.get(c).getplayer()) {
+    			amountOfPlayer++;
+    		}
+    	}
+    	if(amountOfPlayer>1) {
+    			System.out.println("det finns för många spelare det får bara finnas två");
+    			tooManyPlayer();
+    	}
+    	else if(amountOfPlayer<0) {
+    		System.out.println("du måste välja en spelare");
+			create.chooseplayer(tour);
+			}
+    	else {
+    		break;
+    		}
+    	}
+    }
+    
+	private void tooManyPlayer() {
+		@SuppressWarnings("resource")
+		Scanner scan = new Scanner(System.in);
+		for(Combaten c : tour) {
+			if(c.getplayer()) {
+				System.out.println(c.getName());
+			}
+		}
+		System.out.println("\nvälj vilken av dessa karaktäre du spelar som");
+		String name = scan.nextLine();
+		for(Combaten c : tour) {
+			if(!c.getName().equalsIgnoreCase(name)) {
+				c.setplayer(false);
+			}
+		}
+	}
 }

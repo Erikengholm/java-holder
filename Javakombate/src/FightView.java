@@ -5,17 +5,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
 
 public class FightView {
     private static FightView ViewIN = null;
-    public static int distance = 0;
-    public static int distance2 = 0;
+    
+    // dessa två string används för att få omgångs namn och tournerings namn på spelet
     public String matchname;
     private String tournementname;
-    public JFrame frame = new JFrame();
-    private String fighterone = "images/Alfyn";
-    private String fightertwo = "images/Ophilia";
+    //dessa string används för att kallas på för att berätta för jframe vilken bild som ska användas för karaktär ett och tvår
+    private String fighterone = "";
+    private String fightertwo = "";
+    //berättar för jframe villken background denna match ska använda (har bara en tyvärr)
     private String background = "images/desert.jpg";
     
     public static FightView getInstance() {
@@ -142,8 +142,8 @@ public class FightView {
         g2.fillRect(0, 0, wid, height);
         g2.setColor(oldColor);
         g2.drawImage(img1, null, 0, 0);
-        g2.drawImage(img2, null, img1.getWidth() - (220 + distance) - 85, 200);
-        g2.drawImage(img3, img3.getHeight() + (220+distance2) - 40, 200, -img3.getWidth(), img3.getHeight(), null);
+        g2.drawImage(img2, null, img1.getWidth() - 220 - 85, 200);
+        g2.drawImage(img3, img3.getHeight() + 220 - 40, 200, -img3.getWidth(), img3.getHeight(), null);
         g2.dispose();
         return newImage;
     }

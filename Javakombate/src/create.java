@@ -24,7 +24,7 @@ public abstract class create {
             System.out.println("skriv in önskad namn");
             c.setName(scan.nextLine());
             c.createstats();
-            c.setgender(scan);
+            c.setGenderInConsole(scan);
             System.out.println("vill du avsluta j=ja");
             list.add(c);
 
@@ -36,7 +36,7 @@ public abstract class create {
 
     }
 
-    static void chooseplayer(ArrayList < Combaten > list) throws SQLException {
+    static void chooseplayer(ArrayList < Combaten > list) {
         NameList(list);
         int i = 0;
         for (String namn: namns)
@@ -60,13 +60,15 @@ public abstract class create {
         	NameList(list);
         }
         boolean noreapet=true;
-        PreparedStatement myStm = getmysqlconnection().prepareStatement("select * from fighter");
+        PreparedStatement myStm;
+        myStm = getmysqlconnection().prepareStatement("select * from fighter");
+		
         ResultSet myres = myStm.executeQuery();
         while (myres.next()) {
             Combaten c = new Combaten();
             c.setstats(myres.getInt("Attack"), myres.getInt("Defense"), myres.getInt("Special"));
             c.setName(myres.getString("Nickname"));
-            c.setKön(myres.getBoolean("gender"));
+            c.setGender(myres.getBoolean("gender"));
             for(String namn : namns) {
             	if(myres.getString("Nickname").equalsIgnoreCase(namn))
             		noreapet=false;
@@ -80,13 +82,15 @@ public abstract class create {
         }        
         	int erase=1;
             Collections.shuffle(list);
+            //tar bort alla sista element i listan tills den är rätt storlek
             while(size!=list.size() && size>2 && size<list.size()) {
             	if(list.get(list.size()-1).getplayer())
-            		erase=2;
+            		erase++;
             	
                 list.remove( list.size() - erase );
                 
             }
+          
         }
 
     
@@ -102,8 +106,10 @@ public abstract class create {
         for (Combaten
             var: list) {
             b = false;                 
-            PreparedStatement myStm = getmysqlconnection().prepareStatement("insert into Fighter (Nickname, Attack,Defense,Special,Gender)" +
-                "values ( ?,?,?,?,?)");
+            PreparedStatement myStm;
+				myStm = getmysqlconnection().prepareStatement("insert into Fighter (Nickname, Attack,Defense,Special,Gender)" +
+				    "values ( ?,?,?,?,?)");
+			
 
             //jag sätter strängerna där ? är detta är en inbygdd method i java
 
@@ -116,7 +122,7 @@ public abstract class create {
             myStm.setInt(4
                 , var.getSpec());
             myStm.setBoolean(5
-                , var.isKön());
+                , var.getGender());
 
             for (String n: namns) {
                 if (var.getName()
@@ -129,32 +135,36 @@ public abstract class create {
                 System.out.println("fighter har blivit skapad");
             }
 
-        }
+        
         getmysqlconnection().close();
-    }
+        
+    }}
     public static Connection getmysqlconnection() {
     	Connection mycon = null;
         try {
 			mycon = DriverManager.getConnection(database, user, pass);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         return mycon;
     }
-    static void NameList(ArrayList<Combaten> list) throws SQLException {
+    static void NameList(ArrayList<Combaten> list){
     	namns.clear();
         for(int c=0;c<list.size();c++) {
         	namns.add(list.get(c).getName());
         } 
     }
-    static void databaseNameList() throws SQLException {
+    static void databaseNameList() throws SQLException{
     	namns.clear();
-    	PreparedStatement myStm = getmysqlconnection().prepareStatement("select * from fighter");
+    	PreparedStatement myStm;
+	
+			myStm = getmysqlconnection().prepareStatement("select * from fighter");
+		
         ResultSet myres = myStm.executeQuery();
         while (myres.next()) {
             namns.add(myres.getString("Nickname"));
         }
         getmysqlconnection().close();
+		
     }
 }

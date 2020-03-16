@@ -2,19 +2,20 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Combaten {
-
+	
     private int charge = 0;
     private String name;
     private moves move = moves.Read;
-    private boolean kön;
+    //för skoj skull
+    private boolean gender;
     //boolean som berättare om denna karaktär lever eller ej
     private boolean status = true;
     private int life = 100;
     //boolean för att bedömma om denna karaktär är en spelare ps kan bara finnas en spelare per omgång
     private boolean player = false;
-    private int diffuculty = 1;
     //attack är postion 0 ,defense är postion nummer 1 och special är postion nummer 2
     private int[] stats = new int[3];
+    //denna string är för att en karaktär ska ha samma utseende under hela turneringen
     public String Character = " ";
     public int[] getstatsarray() {
         return stats;
@@ -80,21 +81,21 @@ public class Combaten {
         this.status = status;
     }
 
-    public boolean isKön() {
-        return kön;
+    public boolean getGender() {
+        return gender;
     }
 
-    public void setKön(boolean kön) {
-        this.kön = kön;
+    public void setGender(boolean kön) {
+        this.gender = kön;
     }
 
-    public void setgender(Scanner scan) {
+    public void setGenderInConsole(Scanner scan) {
         System.out.println("vilket kön har du \n \n tryck 1 för kvinna \n tryck 2 för man");
 
         if (scan.nextInt() == 1)
-            this.kön = false;
+        	setGender(false);
         else
-            this.kön = true;
+        	setGender(true);
     }
     protected void createstats() {
         Random rand = new Random();
@@ -139,7 +140,4 @@ public class Combaten {
     public void setCharge(int charge) {
         this.charge = charge;
     }
-	public int getDiffuculty() {
-		return diffuculty;
-	}
 }

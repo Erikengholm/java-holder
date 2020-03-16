@@ -5,7 +5,6 @@ import javazoom.jl.player.Player;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -48,7 +47,7 @@ public void stopsong() throws JavaLayerException {
 public class JavaKombat extends create  {
 	private static Scanner scan = new Scanner(System.in);
 
-	public static void main( String[] args ) throws SQLException, IOException, JavaLayerException, InterruptedException {
+	public static void main( String[] args ){
 		boolean loki=true;
 		ArrayList<Combaten> list = new ArrayList<Combaten>();
 		while(loki) {
@@ -69,7 +68,11 @@ public class JavaKombat extends create  {
 				option(list);
 				break;	
 			case 3:
+			try {
 				insertCombatenListTosql(list);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 				break;
 			case 4:
 				startfight(list);
@@ -89,35 +92,21 @@ public class JavaKombat extends create  {
 	}
 
 	private static void startfight(ArrayList<Combaten> list) {
-		int postion= -1;
-		FightControler FC= new FightControler(list);
-		postion=checkplayer(list);
-		if(postion!=-1) {
-			FC.characterSelect(list.get(postion));
-			FC.getBack().waiting();
-		}
+		FightControler FC = new FightControler(list);
 		FC.chooseFighter();
-	}			
-
-	private static int checkplayer(ArrayList<Combaten> list) {
-		int postion=-1;
-		for(int c=0;c<list.size();c++) {
-			if(list.get(c).getplayer()) {
-				postion=c;
-				System.out.println("spelare hittad");
-			}
-				
-		}
-		return postion;
 		
 	}
 
-	private static void option(ArrayList<Combaten> list) throws SQLException {
+	private static void option(ArrayList<Combaten> list) {
 		int size=0;
 		System.out.println("skriv in önskad nummer av stridare i konsolen \nMåste vara delbart med två");
 		size=scan.nextInt();
-		if(sizaeCheck(size)) 
-			getSqlCombatenList(list,size-list.size());
+		if(sizaeCheck(size))
+			try {
+				getSqlCombatenList(list,size-list.size());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		else
 			System.out.println("numret du skrev in är inte delbart med två skriv gärna in ett nytt nummer");
 } 

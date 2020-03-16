@@ -74,17 +74,17 @@ class test {
 		 Random r = new Random();
 		 boolean b=true;
 		 ArrayList <Combaten> c= new ArrayList<>();
-	     try {
-	    	 while(i!=100) {
-	    	counter=r.nextInt(120);
+	     while(i!=100) {
+		counter=r.nextInt(120);
+		try {
 			create.getSqlCombatenList(c,counter);
-			if(c.isEmpty())
-				b=false;
-			i++;
-			
-	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+		if(c.isEmpty())
+			b=false;
+		i++;
+		
 		}
 	     assertTrue(b);
 		 

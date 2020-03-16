@@ -1,11 +1,13 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Fightdata {
  private static Fightdata FightIN = null;
  private static Scanner scan = new Scanner(System.in);
+ //contact är till för om båda valde samma attack att det bara går igenom en gång
  public boolean contact = false;
- public int res;//res-ultat är för att skicka in på fightview vilken text som ska skrivas ut
+ public int res;//res-ult-at är för att skicka in på fightview vilken text som ska skrivas ut
  public String ult = " ";
  public String at = " ";
 
@@ -15,7 +17,18 @@ public class Fightdata {
 
   return FightIN;
  }
-
+ protected int checkplayer(ArrayList<Combaten> list) {
+		int postion=-1;
+		for(int c=0;c<list.size();c++) {
+			if(list.get(c).getplayer()) {
+				postion=c;
+				System.out.println("spelare hittad");
+			}
+				
+		}
+		return postion;
+		
+	}
  public void chooseMove(Combaten c) {
   if (c.getplayer()) {
    String move;
@@ -45,7 +58,7 @@ public class Fightdata {
     }
    } while (b);
   } else {
-	  aiChoosemove(c);
+   aiMove(c);
   }
 
 
@@ -53,7 +66,7 @@ public class Fightdata {
 
  
  
- private void aiChoosemove(Combaten c) {
+ private void aiMove(Combaten c) {
   Random rand = new Random();
   int chanse;
   double move1 = (double) c.getAttack() / 150;
@@ -111,6 +124,7 @@ public class Fightdata {
     attack(second, first, false);
     break;
    case Defend:
+	   //försvarar två ska ingenting hända 
     break;
    case charge:
     charge(first, second, false);
@@ -120,7 +134,8 @@ public class Fightdata {
     break;
   }
  }
-public void waiting(){  
+public void waiting(){    
+	//denna funktion är för att få programet att vänta med backend tills front ende är färdig
 	System.out.println("tryck enter för att forsätta");
     @SuppressWarnings("unused")
 	String i=scan.nextLine();
